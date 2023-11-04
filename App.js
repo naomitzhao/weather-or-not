@@ -8,13 +8,26 @@ import { WEATHER_API_KEY } from '@env'
 
 export default function App() {
   const [weatherData, setWeatherData] = useState([]);
-  const [temp, setTemp] = useState([]);
-  const [cityName, setCityName] = useState([]);
+  const [temp, setTemp] = useState(0);
+  const [cityName, setCityName] = useState(0);
 
   async function fetchWeatherData(lat, lon){
     console.log(lat, lon);
     const API = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric`;
-    const response = await fetch(API)
+    try{
+      let response = await fetch(API);
+      let data = await response.json();
+      console.log(data)
+      console.log(data.main.temp)
+      setWeatherData(data)
+      setTemp(data.main.temp)
+      setCityName(data.name)
+    }
+    catch (error){
+      console.error(error)
+    }
+
+/*     const response = await fetch(API)
     if (response.status == 200){
       console.log("got data")
       const data = await response.json();
@@ -27,11 +40,11 @@ export default function App() {
     }
     else{
       console.log("something went wrong")
-    }
+    } */
   }
   
   useEffect(() => {
-    fetchWeatherData(37.78, -122.42);
+    fetchWeatherData(38.5449, -121.7405);
   }, []);
 
   return (
