@@ -7,9 +7,8 @@ import { WEATHER_API_KEY } from '@env'
 
 
 export default function App() {
-  const [weatherData, setWeatherData] = useState([]);
   const [temp, setTemp] = useState(0);
-  const [cityName, setCityName] = useState(0);
+  const [cityName, setCityName] = useState("Unknown");
 
   async function fetchWeatherData(lat, lon){
     console.log(lat, lon);
@@ -18,8 +17,6 @@ export default function App() {
       let response = await fetch(API);
       let data = await response.json();
       console.log(data)
-      console.log(data.main.temp)
-      setWeatherData(data)
       setTemp(data.main.temp)
       setCityName(data.name)
     }
