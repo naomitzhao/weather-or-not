@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { StyleSheet, Text, View, SafeAreaView, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, ImageBackground, Button, Image } from 'react-native';
 import Weather from './src/components/weather';
 import GuessGame from './src/components/guessgame';
 import City from './src/components/city';
@@ -20,21 +20,18 @@ import {
 
 export default function App() {
   const [loading, setLoading] = useState(true);
-  const [temp, setTemp] = useState(0);
-  const [cityName, setCityName] = useState("Unknown");
+  const [cityName, setCityName] = useState("Loading...");
   const [lat, setLat] = useState([]);
   const [lon, setLon] = useState([]);
-  const [high, setHigh] = useState(99);
-  const [low, setLow] = useState(-99);
-  const [humidity, setHumidity] = useState(-1);
-  const [windspeed, setWindspeed] = useState(-1);
-  const [data, setData] = useState([{type: "current temperature", value: 0, unit: "°F"}]);
+  const [gameData, setGameData] = useState([{type: "current temperature", value: -500, unit: "°F"}, {type: "minimum daily temperature", value:0, unit:"°F"},{type: "current humidity", value:-1, unit:"%"}, {type: "current wind speed", value:-1, unit:"mph"}])
+  const [data, setData] = useState([-500,-99,99,-1,-1]);
   const [scores, setScores] = useState([0, 0, 0, 0, 0]);
   const [index, setIndex] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [show, setShow] = useState(false);
   const dataTypes = ["current temperature", "minimum daily temperature", "maximum daily temperature", "current humidity", "current wind speed"];
   const units = ["°F", "°F", "°F", "%", " mph"];
-  const {text, safeArea, screenContainer, weatherContainer, title, subTitle, city, detailText, current, currentTemp, scoreContainer, scoreText, value} = styles
+  const {text, safeArea, screenContainer, weatherContainer, title, subTitle, detailText, current, currentTemp, scoreContainer, scoreText, value} = styles
 
   async function fetchWeatherData(lat, lon){
     console.log(lat,lon)
@@ -44,18 +41,21 @@ export default function App() {
     try{
       let response = await fetch(API);
       let json = await response.json();
-      console.log(json);
+      console.log("got json");
+      console.log(json)
       // setCityName(data.location.name);
       let unroundedData = [json.current.temp_f, json.forecast.forecastday[0].day.mintemp_f, json.forecast.forecastday[0].day.maxtemp_f, json.current.humidity, json.current.wind_mph];
       let roundedData = unroundedData.map((value) => Math.round(value));
-      let gameData = roundedData.map((value, index) => {
+      setGameData(roundedData.map((value, index) => {
         return {type: dataTypes[index], value: value, unit: units[index]};
-      });
+      }))
       console.log(gameData);
-      setData(gameData);
-      }
+      setCityName(json.location.name)
+    }
       catch (error){
-        console.error(error);
+        //console.error(error);
+/*         console.log("error :(")
+        console.log(lat,lon) */
       }
       finally{
         setLoading(false);
@@ -71,7 +71,7 @@ export default function App() {
         return;
       }
     let location = await Location.getCurrentPositionAsync({})
-    console.log(location)
+    console.log("got location")
     setLat(location.coords.latitude)
     setLon(location.coords.longitude)
     
@@ -88,10 +88,12 @@ export default function App() {
   });
   
   const correctGuess = (numTries) => {
-    newScores = scores;
+    let newScores = scores;
     newScores[index] = numTries;
     setScores(newScores);
     console.log(scores);
+    setShow(false);
+    data[index] = gameData[index].value
     if(index < 4) {
       setIndex(index + 1);
     } else {
@@ -103,7 +105,7 @@ export default function App() {
   useEffect(() => {
     fetchData()
     fetchWeatherData(lat, lon);
-  }, []);
+  }, [lat, lon]);
 
   if (!fontsLoaded && !fontError) {
     return null;
@@ -117,9 +119,7 @@ export default function App() {
 
   <ImageBackground source={require('./assets/bright-clouds.jpg')} style={{flex: 1,}}>
   <SafeAreaView style={safeArea}>
-      {!gameOver && <GuessGame type={data[index].type} value={data[index].value} unit={data[index].unit} correctGuess={correctGuess}/>}
-      {gameOver && 
-        
+
         <View style={screenContainer}>
           <View style={weatherContainer}>
             <Text style={[text, title]}>Weather</Text>
@@ -127,17 +127,17 @@ export default function App() {
             {/* <Text style={[text, city]}><Text style={value}>Luma Land</Text></Text> */}
             <City cityName={cityName}></City>
             <Text style={[text, current]}>Current Temperature</Text>
-            <Text style={[text, current, currentTemp]}><Text style={value}>{temp}° F</Text></Text>
-            <Text style={[text, detailText]}>High: <Text style={value}>{high}° F</Text>      Low: <Text style={value}>{low}° F</Text></Text>
-            <Text style={[text, detailText]}>Humidity: <Text style={value}>{humidity}%</Text></Text>
-            <Text style={[text, detailText]}>Windspeed: <Text style={value}>{windspeed} mph</Text></Text>
+            <Text style={[text, current, currentTemp]}>{data[0]!=-500 && <Text style={value}>{gameData[0].value}</Text>}{data[0]==-500 && <Button title="?" onPress={() => {setIndex(0); setShow(true)}}></Button>} ° F</Text>
+            <Text style={[text, detailText]}>Low: {data[1]!=-99 && <Text style={value}>{gameData[1].value}</Text>}{data[1]==-99 && <Button title="?" onPress={() => {setIndex(1); setShow(true)}}></Button>} ° F      High: {data[2]!=99 && <Text style={value}>{gameData[2].value}</Text>}{data[2]==99 && <Button title="?" onPress={() => {setIndex(2); setShow(true)}}></Button>} ° F</Text>
+            <Text style={[text, detailText]}>Humidity: {data[3]!=-1 && <Text style={value}>{gameData[3].value}</Text>}{data[3]==-1 && <Button title="?" onPress={() => {setIndex(3); setShow(true)}}></Button>}%</Text>
+            <Text style={[text, detailText]}>Wind Speed: {data[4]!=-1 && <Text style={value}>{gameData[4].value}</Text>}{data[4]==-1 && <Button title="?" onPress={() => {setIndex(4); setShow(true)}}></Button>} mph</Text>
           </View>
           <View style={scoreContainer}>
-            <Text style={[text, scoreText]}>score</Text>
           </View>
+          {show && <Image style={{opacity: 0.0,}} source={require('./assets/bright-clouds.jpg')} ></Image>}
+          {show && <GuessGame type={gameData[index].type} value={gameData[index].value} unit={gameData[index].unit} correctGuess={correctGuess}/>}
         </View>
       
-      }
     
       </SafeAreaView>
     </ImageBackground>
@@ -161,12 +161,14 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     //backgroundColor: 'powderblue',
     flex: 1,
+    flexShrink: 1,
   },
   weatherContainer: {
     //backgroundColor: 'pink',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 3,
+    flex: 10,
+    flexShrink: 1,
   },
   scoreContainer: {
     //backgroundColor: 'grey',
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 72,
+    fontSize: 64,
     marginBottom: 0,
   },
   subTitle: {
@@ -196,12 +198,12 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 24,
-    marginBottom: 24,
+    marginBottom: 12,
   },
   scoreText: {
     fontSize: 20,
   },
   value: {
-    color: 'red',
+    color: 'green',
   },
 });
