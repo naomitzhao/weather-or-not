@@ -22,12 +22,18 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [temp, setTemp] = useState(0);
   const [cityName, setCityName] = useState("Unknown");
-  const [lat, setLat] = useState([])
-  const [lon, setLon] = useState([])
-  const [high, setHigh] = useState(99)
-  const [low, setLow] = useState(-99)
-  const [humidity, setHumidity] = useState(-1)
-  const [windspeed, setWindspeed] = useState(-1)
+  const [lat, setLat] = useState([]);
+  const [lon, setLon] = useState([]);
+  const [high, setHigh] = useState(99);
+  const [low, setLow] = useState(-99);
+  const [humidity, setHumidity] = useState(-1);
+  const [windspeed, setWindspeed] = useState(-1);
+  const [data, setData] = useState([{type: "current temperature", value: 0, unit: "°F"}]);
+  const [scores, setScores] = useState([0, 0, 0, 0, 0]);
+  const [index, setIndex] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const dataTypes = ["current temperature", "minimum daily temperature", "maximum daily temperature", "current humidity", "current wind speed"];
+  const units = ["°F", "°F", "°F", "%", " mph"];
   const {text, safeArea, screenContainer, weatherContainer, title, subTitle, city, detailText, current, currentTemp, scoreContainer, scoreText, value} = styles
 
   async function fetchWeatherData(lat, lon){
@@ -37,22 +43,25 @@ export default function App() {
     
     try{
       let response = await fetch(API);
-      let data = await response.json();
-      console.log(data)
-      setTemp(Math.floor(data.current.temp_f));
-      setCityName(data.location.name);
-      setHigh(data.forecast.forecastday[0].day.maxtemp_f);
-      setLow(data.forecast.forecastday[0].day.mintemp_f);
-      setHumidity(data.current.humidity)
-      setWindspeed(data.current.wind_mph)
+      let json = await response.json();
+      console.log(json);
+      // setCityName(data.location.name);
+      let unroundedData = [json.current.temp_f, json.forecast.forecastday[0].day.mintemp_f, json.forecast.forecastday[0].day.maxtemp_f, json.current.humidity, json.current.wind_mph];
+      let roundedData = unroundedData.map((value) => Math.round(value));
+      let gameData = roundedData.map((value, index) => {
+        return {type: dataTypes[index], value: value, unit: units[index]};
+      });
+      console.log(gameData);
+      setData(gameData);
+      }
+      catch (error){
+        console.error(error);
+      }
+      finally{
+        setLoading(false);
+      }
     }
-    catch (error){
-      console.error(error);
-    }
-    finally{
-      setLoading(false);
-    }
-  }
+
 
   async function fetchData(){
     await Location.requestForegroundPermissionsAsync()
@@ -77,12 +86,24 @@ export default function App() {
     MPLUSRounded1c_800ExtraBold,
     MPLUSRounded1c_900Black,
   });
+  
+  const correctGuess = (numTries) => {
+    newScores = scores;
+    newScores[index] = numTries;
+    setScores(newScores);
+    console.log(scores);
+    if(index < 4) {
+      setIndex(index + 1);
+    } else {
+      setGameOver(true);
+    }
+  }
 
   
   useEffect(() => {
     fetchData()
     fetchWeatherData(lat, lon);
-  }, [lat, lon]);
+  }, []);
 
   if (!fontsLoaded && !fontError) {
     return null;
@@ -95,28 +116,28 @@ export default function App() {
   return (
     
     <ImageBackground source={require('./assets/bright-clouds.jpg')} style={{flex: 1,}}>
-    <SafeAreaView style={safeArea}>
-    <View style={screenContainer}>
-    <View style={weatherContainer}>
-        <Text style={[text, title]}>Weather</Text>
-        <Text style={[text, subTitle]}>or Not</Text>
-        {/* <Text style={[text, city]}><Text style={value}>Luma Land</Text></Text> */}
-        <City cityName={cityName}></City>
-        <Text style={[text, current]}>Current Temperature</Text>
-        <Text style={[text, current, currentTemp]}><Text style={value}>{temp}° F</Text></Text>
-        <Text style={[text, detailText]}>High: <Text style={value}>{high}° F</Text>      Low: <Text style={value}>{low}° F</Text></Text>
-        <Text style={[text, detailText]}>Humidity: <Text style={value}>{humidity}%</Text></Text>
-        <Text style={[text, detailText]}>Windspeed: <Text style={value}>{windspeed} mph</Text></Text>
-      </View>
-      <View style={scoreContainer}>
-        <Text style={[text, scoreText]}>score</Text>
-      </View>
-    </View>
-    </SafeAreaView>
+      <SafeAreaView style={safeArea}>
+        <View style={screenContainer}>
+          <View style={weatherContainer}>
+            <Text style={[text, title]}>Weather</Text>
+            <Text style={[text, subTitle]}>or Not</Text>
+            {/* <Text style={[text, city]}><Text style={value}>Luma Land</Text></Text> */}
+            <City cityName={cityName}></City>
+            <Text style={[text, current]}>Current Temperature</Text>
+            <Text style={[text, current, currentTemp]}><Text style={value}>{temp}° F</Text></Text>
+            <Text style={[text, detailText]}>High: <Text style={value}>{high}° F</Text>      Low: <Text style={value}>{low}° F</Text></Text>
+            <Text style={[text, detailText]}>Humidity: <Text style={value}>{humidity}%</Text></Text>
+            <Text style={[text, detailText]}>Windspeed: <Text style={value}>{windspeed} mph</Text></Text>
+          </View>
+          <View style={scoreContainer}>
+            <Text style={[text, scoreText]}>score</Text>
+          </View>
+        </View>
+      </SafeAreaView>
     </ImageBackground>
-    
-    
-  );
+
+  )
+
 }
 
 const styles = StyleSheet.create({
