@@ -7,6 +7,7 @@ import City from './src/components/city';
 import * as Location from 'expo-location'
 
 import { WEATHER_API_KEY } from '@env'
+
 import {
   useFonts,
   MPLUSRounded1c_100Thin,
@@ -30,11 +31,14 @@ export default function App() {
   const {text, safeArea, screenContainer, weatherContainer, title, subTitle, city, detailText, current, currentTemp, scoreContainer, scoreText, value} = styles
 
   async function fetchWeatherData(lat, lon){
+    console.log(lat,lon)
     //const API = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric`;
-    const API = 'http://api.weatherapi.com/v1/forecast.json?key={WEATHER_API_KEY}&q=${lat},${lon}&days=1&aqi=no&alerts=no';
+    const API = `http://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${lat},${lon}&days=1`;
+    
     try{
       let response = await fetch(API);
       let data = await response.json();
+      console.log(data)
       setTemp(Math.floor(data.current.temp_f));
       setCityName(data.location.name);
       setHigh(data.forecast.forecastday[0].day.maxtemp_f);
@@ -47,7 +51,7 @@ export default function App() {
     }
   }
 
-  async function fetchLocationData(){
+  async function fetchData(){
     await Location.requestForegroundPermissionsAsync()
     let {status} = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -72,9 +76,9 @@ export default function App() {
 
   
   useEffect(() => {
-    fetchLocationData()
+    fetchData()
     fetchWeatherData(lat, lon);
-  }, []);
+  }, [lat, lon]);
 
   if (!fontsLoaded && !fontError) {
     return null;
