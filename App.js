@@ -31,7 +31,7 @@ export default function App() {
 
   async function fetchWeatherData(lat, lon){
     //const API = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric`;
-    const API = 'http://api.weatherapi.com/v1/forecast.json?key=52c1e9823f3f4ba292281929230511&q=38.5449,-121.7405&days=1&aqi=no&alerts=no';
+    const API = 'http://api.weatherapi.com/v1/forecast.json?key={WEATHER_API_KEY}&q=${lat},${lon}&days=1&aqi=no&alerts=no';
     try{
       let response = await fetch(API);
       let data = await response.json();
@@ -49,6 +49,11 @@ export default function App() {
 
   async function fetchLocationData(){
     await Location.requestForegroundPermissionsAsync()
+    let {status} = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied');
+        return;
+      }
     let location = await Location.getCurrentPositionAsync({})
     console.log(location)
     setLat(location.coords.latitude)
