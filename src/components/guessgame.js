@@ -1,15 +1,11 @@
 import React, {useState} from 'react';
-import { Text, SafeAreaView, View, StyleSheet, Image } from 'react-native';
+import { Text, SafeAreaView, View, StyleSheet } from 'react-native';
 import { VirtualKeyboard } from 'react-native-screen-keyboard';
 import {
     useFonts,
-    MPLUSRounded1c_100Thin,
-    MPLUSRounded1c_300Light,
     MPLUSRounded1c_400Regular,
     MPLUSRounded1c_500Medium,
     MPLUSRounded1c_700Bold,
-    MPLUSRounded1c_800ExtraBold,
-    MPLUSRounded1c_900Black,
   } from '@expo-google-fonts/m-plus-rounded-1c';
 
 const GuessGame = ({type, value, unit, correctGuess}) => {
@@ -21,13 +17,9 @@ const GuessGame = ({type, value, unit, correctGuess}) => {
     const {text, keyboardWrapper, instruction, gameWrapper} = styles
 
     let [fontsLoaded, fontError] = useFonts({
-        MPLUSRounded1c_100Thin,
-        MPLUSRounded1c_300Light,
         MPLUSRounded1c_400Regular,
         MPLUSRounded1c_500Medium,
         MPLUSRounded1c_700Bold,
-        MPLUSRounded1c_800ExtraBold,
-        MPLUSRounded1c_900Black,
       });
 
     return(
