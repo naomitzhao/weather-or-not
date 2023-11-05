@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, SafeAreaView, View, StyleSheet } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
 
 
 const City = ({cityName}) => {

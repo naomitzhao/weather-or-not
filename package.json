@@ -9,13 +9,8 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@expo-google-fonts/battambang": "^0.2.3",
-    "@expo-google-fonts/inter": "^0.2.3",
-    "@expo-google-fonts/lalezar": "^0.2.3",
     "@expo-google-fonts/m-plus-rounded-1c": "^0.2.3",
-    "@expo-google-fonts/oswald": "^0.2.3",
     "@expo-google-fonts/playfair-display": "^0.2.3",
-    "@expo-google-fonts/poppins": "^0.2.3",
     "expo": "^49.0.16",
     "expo-app-loading": "^2.1.1",
     "expo-font": "~11.4.0",
