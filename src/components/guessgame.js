@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState} from 'react';
 import { Text, SafeAreaView, View, StyleSheet, Image } from 'react-native';
 import { VirtualKeyboard } from 'react-native-screen-keyboard';
 import {
@@ -36,7 +36,7 @@ const GuessGame = ({type, value, unit, correctGuess}) => {
     <View style={keyboardWrapper}>
     <View>
         {isFirstGuess && <Text style={[text, instruction]}>Guess the {type} in {unit}</Text>}
-        {!isFirstGuess && <Text style={[text, instruction]}>The {type} is {hint} than {prevGuess}{unit}.</Text>}
+        {!isFirstGuess && <Text style={[text, instruction]}>The {type} is {hint} than {prevGuess}{unit}!</Text>}
     </View>
     <VirtualKeyboard 
         vibration={true}
