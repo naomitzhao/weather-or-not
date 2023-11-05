@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react'
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, ImageBackground } from 'react-native';
 import Weather from './src/components/weather';
 import GuessGame from './src/components/guessgame';
@@ -20,6 +19,7 @@ import {
 } from '@expo-google-fonts/m-plus-rounded-1c';
 
 export default function App() {
+  const [loading, setLoading] = useState(true);
   const [temp, setTemp] = useState(0);
   const [cityName, setCityName] = useState("Unknown");
   const [lat, setLat] = useState([])
@@ -49,19 +49,23 @@ export default function App() {
     catch (error){
       console.error(error);
     }
+    finally{
+      setLoading(false);
+    }
   }
 
   async function fetchData(){
     await Location.requestForegroundPermissionsAsync()
     let {status} = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        console.log('Permission to access location was denied');
+        console.log('no location access permission');
         return;
       }
     let location = await Location.getCurrentPositionAsync({})
     console.log(location)
     setLat(location.coords.latitude)
     setLon(location.coords.longitude)
+    
   }
 
   let [fontsLoaded, fontError] = useFonts({
@@ -81,6 +85,10 @@ export default function App() {
   }, [lat, lon]);
 
   if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  if (loading){
     return null;
   }
 
