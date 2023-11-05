@@ -2,9 +2,8 @@ import React, {useState, useEffect} from 'react'
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import Weather from './src/components/weather';
+import GuessGame from './src/components/guessgame';
 import { WEATHER_API_KEY } from '@env'
-
-
 
 export default function App() {
   const [temp, setTemp] = useState(0);
@@ -16,12 +15,12 @@ export default function App() {
     try{
       let response = await fetch(API);
       let data = await response.json();
-      console.log(data)
-      setTemp(data.main.temp)
-      setCityName(data.name)
+      console.log(data);
+      setTemp(Math.floor(data.main.temp));
+      setCityName(data.name);
     }
     catch (error){
-      console.error(error)
+      console.error(error);
     }
 
 /*     const response = await fetch(API)
@@ -46,9 +45,9 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Weather temp={temp} cityName={cityName}/>
-      {/* <Text>{weatherData.main.temp}</Text> */}
+      {/* <Weather temp={temp} cityName={cityName}/> */}
       <StatusBar style="auto" />
+      <GuessGame temp={temp}/>
     </View>
   );
 }
