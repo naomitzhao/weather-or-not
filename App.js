@@ -3,6 +3,9 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, ImageBackground } from 'react-native';
 import Weather from './src/components/weather';
 import GuessGame from './src/components/guessgame';
+import City from './src/components/city';
+import * as Location from 'expo-location'
+
 import { WEATHER_API_KEY } from '@env'
 import {
   useFonts,
@@ -18,22 +21,38 @@ import {
 export default function App() {
   const [temp, setTemp] = useState(0);
   const [cityName, setCityName] = useState("Unknown");
+  const [lat, setLat] = useState([])
+  const [lon, setLon] = useState([])
+  const [high, setHigh] = useState(99)
+  const [low, setLow] = useState(-99)
+  const [humidity, setHumidity] = useState(-1)
+  const [windspeed, setWindspeed] = useState(-1)
   const {text, safeArea, screenContainer, weatherContainer, title, subTitle, city, detailText, current, currentTemp, scoreContainer, scoreText, value} = styles
 
   async function fetchWeatherData(lat, lon){
-    console.log(lat, lon);
-    const API = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric`;
+    //const API = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric`;
+    const API = 'http://api.weatherapi.com/v1/forecast.json?key=52c1e9823f3f4ba292281929230511&q=38.5449,-121.7405&days=1&aqi=no&alerts=no';
     try{
       let response = await fetch(API);
       let data = await response.json();
-      console.log(data);
-      setTemp(Math.floor(data.main.temp));
-      setCityName(data.name);
+      setTemp(Math.floor(data.current.temp_f));
+      setCityName(data.location.name);
+      setHigh(data.forecast.forecastday[0].day.maxtemp_f);
+      setLow(data.forecast.forecastday[0].day.mintemp_f);
+      setHumidity(data.current.humidity)
+      setWindspeed(data.current.wind_mph)
     }
     catch (error){
       console.error(error);
     }
+  }
 
+  async function fetchLocationData(){
+    await Location.requestForegroundPermissionsAsync()
+    let location = await Location.getCurrentPositionAsync({})
+    console.log(location)
+    setLat(location.coords.latitude)
+    setLon(location.coords.longitude)
   }
 
   let [fontsLoaded, fontError] = useFonts({
@@ -48,7 +67,8 @@ export default function App() {
 
   
   useEffect(() => {
-    fetchWeatherData(38.5449, -121.7405);
+    fetchLocationData()
+    fetchWeatherData(lat, lon);
   }, []);
 
   if (!fontsLoaded && !fontError) {
@@ -63,12 +83,13 @@ export default function App() {
     <View style={weatherContainer}>
         <Text style={[text, title]}>Weather</Text>
         <Text style={[text, subTitle]}>or Not</Text>
-        <Text style={[text, city]}><Text style={value}>Luma Land</Text></Text>
+        {/* <Text style={[text, city]}><Text style={value}>Luma Land</Text></Text> */}
+        <City cityName={cityName}></City>
         <Text style={[text, current]}>Current Temperature</Text>
-        <Text style={[text, current, currentTemp]}><Text style={value}>700° F</Text></Text>
-        <Text style={[text, detailText]}>High: <Text style={value}>100° F</Text>      Low: <Text style={value}>100° F</Text></Text>
-        <Text style={[text, detailText]}>Humidity: <Text style={value}>100%</Text></Text>
-        <Text style={[text, detailText]}>Windspeed: <Text style={value}>100 mph</Text></Text>
+        <Text style={[text, current, currentTemp]}><Text style={value}>{temp}° F</Text></Text>
+        <Text style={[text, detailText]}>High: <Text style={value}>{high}° F</Text>      Low: <Text style={value}>{low}° F</Text></Text>
+        <Text style={[text, detailText]}>Humidity: <Text style={value}>{humidity}%</Text></Text>
+        <Text style={[text, detailText]}>Windspeed: <Text style={value}>{windspeed} mph</Text></Text>
       </View>
       <View style={scoreContainer}>
         <Text style={[text, scoreText]}>score</Text>
