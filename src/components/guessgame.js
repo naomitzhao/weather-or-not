@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     },
     text:{
         fontFamily: 'MPLUSRounded1c_400Regular', 
-        color: 'darkblue',
+        color: '#0058A1',
       },
 });
   

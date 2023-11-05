@@ -13,7 +13,7 @@ import {
 } from '@expo-google-fonts/m-plus-rounded-1c';
 
 const GameOver = ({tries, closeFunction}) => {           
-    const [rating, setRating] = useState("(Skill Issue)")  
+    const [rating, setRating] = useState("")  
 
     let [fontsLoaded, fontError] = useFonts({
         MPLUSRounded1c_100Thin,
