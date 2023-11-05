@@ -2,31 +2,39 @@ import React, {useState} from 'react'
 import { Text, SafeAreaView, View, StyleSheet } from 'react-native';
 import { VirtualKeyboard } from 'react-native-screen-keyboard';
 
-const GuessGame = ({temp}) => {
+const GuessGame = ({type, value, unit, correctGuess}) => {
+    const [isFirstGuess, setIsFirstGuess] = useState(true);
     const [guess, setGuess] = useState(0);
     const [prevGuess, setPrevGuess] = useState(0);
-    const [hint, setHint] = useState("lower");
-    const [correct, setCorrect] = useState(false);
+    const [hint, setHint] = useState("higher");
+    const [tries, setTries] = useState(0);
 
     return(<>
     <View>
-        {!correct && <Text>The temperature is {hint} than {prevGuess}.</Text>}
-        {correct && <Text>{prevGuess} is the correct temperature.</Text>}
-        {guess != 0 && <Text>{guess}</Text>}
+        {isFirstGuess && <Text>Guess the {type} in {unit}</Text>}
+        {!isFirstGuess && <Text>The {type} is {hint} than {prevGuess}{unit}.</Text>}
+        {guess != 0 ? <Text>{guess}</Text> : <Text> </Text>}
     </View>
     <VirtualKeyboard 
         vibration={true}
         // onPressFunction={"onPress"}
-        onKeyDown={(e) => {
-            if (typeof e === 'number') {
-                setGuess(guess * 10 + e);
-            } else if (e === "custom") {
+        onKeyDown={(key) => {
+            if (typeof key === 'number') {
+                setGuess(guess * 10 + key);
+            } else if (key === "custom") {
                 setGuess(Math.floor(guess / 10));
             } else {
-                setCorrect(temp == guess);
-                setHint(temp < guess ? "lower" : "higher");
-                setPrevGuess(guess);
-                setGuess(0);
+                if (guess == value) {
+                    correctGuess(tries + 1);
+                    setTries(0);
+                    setIsFirstGuess(true);
+                } else {
+                    setTries(tries + 1);
+                    setHint(value < guess ? "lower" : "higher");
+                    setIsFirstGuess(false);
+                    setPrevGuess(guess);
+                }
+                setGuess(0);  
             }
         }}
     />
