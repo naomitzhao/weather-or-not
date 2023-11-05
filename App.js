@@ -114,9 +114,12 @@ export default function App() {
   }
 
   return (
-    
-    <ImageBackground source={require('./assets/bright-clouds.jpg')} style={{flex: 1,}}>
-      <SafeAreaView style={safeArea}>
+
+  <ImageBackground source={require('./assets/bright-clouds.jpg')} style={{flex: 1,}}>
+  <SafeAreaView style={safeArea}>
+      {!gameOver && <GuessGame type={data[index].type} value={data[index].value} unit={data[index].unit} correctGuess={correctGuess}/>}
+      {gameOver && 
+        
         <View style={screenContainer}>
           <View style={weatherContainer}>
             <Text style={[text, title]}>Weather</Text>
@@ -133,6 +136,9 @@ export default function App() {
             <Text style={[text, scoreText]}>score</Text>
           </View>
         </View>
+      
+      }
+    
       </SafeAreaView>
     </ImageBackground>
 
